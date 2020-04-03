@@ -1,0 +1,89 @@
+{% load  static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" crossorigin="anonymous">
+    <title>Title</title>
+    <script>
+        $(function () {
+            $('#imgshow').click(function () {
+                var imgTag = $('#img_show');
+                $.ajax({
+                    url:'/show/img/',
+                    type:'post',
+                    success:function (result) {
+                        if(result['code'] === 200){
+                            imgUrl= result['data']['img'];
+                            if(imgUrl){
+                                imgTag.attr('src',result['data']['img'])
+                            }else {
+
+                            }
+                        }else {
+                            console.log(result['code']);
+                            alert("加载图片出错,请先上传数据文件!")
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+    <script>
+        $(function () {
+            $('#submit').click(function () {
+                //ajax上传文件必须通过FormData对象传输数据
+                var formdata = new FormData();
+
+                //获取上传文件对象(文件句柄)：定位对象，转成DOM对象，取值(文件对象列表)
+                var file = $('#file')[0].files[0];
+                if(!file){
+                    alert("请选择文件!");
+                    return
+                }
+                formdata.append('file', file);
+
+                $.ajax({
+                    url: '/show/upload/',
+                    type: 'post',
+                    data: formdata,
+                    processData: false,//不处理数据
+                    contentType: false,//不设置内容类型，按原格式传输
+                    success: function (response) {
+                        if(response['code'] === 200){
+                            alert("文件上传成功!")
+                        }
+                    }
+                })
+            });
+        })
+    </script>
+
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img style="width: 20px;height: 20px" alt="Brand" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAB+0lEQVR4AcyYg5LkUBhG+1X2PdZGaW3btm3btm3bHttWrPomd1r/2Jn/VJ02TpxcH4CQ/dsuazWgzbIdrm9dZVd4pBz4zx2igTaFHrhvjneVXNHCSqIlFEjiwMyyyOBilRgGSqLNF1jnwNQdIvAt48C3IlBmHCiLQHC2zoHDu6zG1iXn6+y62ScxY9AODO6w0pvAqf23oSE4joOfH6OxfMoRnoGUm+de8wykbFt6wZtA07QwtNOqKh3ZbS3Wzz2F+1c/QJY0UCJ/J3kXWJfv7VhxCRRV1jGw7XI+gcO7rEFFRvdYxydwcPsVsC0bQdKScngt4iUTD4Fy/8p7PoHzRu1DclwmgmiqgUXjD3oTKHbAt869qdJ7l98jNTEblPTkXMwetpvnftA0LLHb4X8kiY9Kx6Q+W7wJtG0HR7fdrtYz+x7iya0vkEtUULIzCjC21wY+W/GYXusRH5kGytWTLxgEEhePPwhKYb7EK3BQuxWwTBuUkd3X8goUn6fMHLyTT+DCsQdAEXNzSMeVPAJHdF2DmH8poCREp3uwm7HsGq9J9q69iuunX6EgrwQVObjpBt8z6rdPfvE8kiiyhsvHnomrQx6BxYUyYiNS8f75H1w4/ISepDZLoDhNJ9cdNUquhRsv+6EP9oNH7Iff2A9g8h8CLt1gH0Qf9NMQAFnO60BJFQe0AAAAAElFTkSuQmCC">
+                </a>
+            </div>
+        </div>
+    </nav>
+   <div class="title" style="text-align: center">
+        <h1>Matplotlib 图表展示</h1>
+    </div>
+    <div class="upload-file" style="text-align: center;margin-top: 20px;">
+        <form id="upload" enctype="multipart/form-data" method="post" class="file">
+            <input class="upload-file" type="file" id="file" style="display: inline-block;">
+            <input class="btn btn-success" type="button" id="submit" value="上传">
+            <input class="btn btn-success" type="button" id="imgshow" value="显示图片">
+        </form>
+    </div>
+    <div style="text-align: center">
+        <img id="img_show" src="" alt="" style="width: 600px;height: 450px">
+{#        <img id="img_show" src="" alt="">#}
+    </div>
+</body>
+</html>

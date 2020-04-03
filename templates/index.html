@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="{% static 'js/bootstrap.min.js' %}"  crossorigin="anonymous"></script>
+    <script>
+        $(function () {
+            $('#submit').click(function () {
+                //ajax上传文件必须通过FormData对象传输数据
+                var formdata = new FormData();
+
+                //获取上传文件对象(文件句柄)：定位对象，转成DOM对象，取值(文件对象列表)
+                var file = $('#file')[0].files[0];
+                if(!file){
+                    alert("请选择文件!");
+                    return
+                }
+                formdata.append('file', file);
+
+                $.ajax({
+                    url: '/show/upload/',
+                    type: 'post',
+                    data: formdata,
+                    processData: false,//不处理数据
+                    contentType: false,//不设置内容类型，按原格式传输
+                    success: function (response) {
+                        if(response['code'] === 200){
+                            alert(response['msg']);
+                            window.location.reload()
+                        }
+                    }
+                })
+            });
+            $('#del').click(function () {
+                $.ajax({
+                    url:'/show/del/',
+                    type:'post',
+                    success:function (result) {
+                        if(result['code'] === 200){
+                            window.location.reload()
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+{#        <form action="{% url 'upload' %}" method="POST" enctype="multipart/form-data" class="form-horizontal">#}
+{#        {% csrf_token %}#}
+{#        <div class="form-group">#}
+{#            <label for="name" class="col-md-3 col-sm-3 col-xs-12 control-label">File: </label>#}
+{#            <div class="col-md-8">#}
+{#                <input type="file" name="csv_file" id="csv_file" required="True" class="form-control">#}
+{#            </div>#}
+{#        </div>#}
+{#        <div class="form-group">#}
+{#            <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">#}
+{#                <button class="btn btn-primary"><span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>Upload#}
+{#                </button>#}
+{#            </div>#}
+{#        </div>#}
+{#        </form>#}
+    <div class="title" style="text-align: center">
+        <h1>Pyecharts图表展示</h1>
+    </div>
+    <div class="upload-file" style="text-align: center;margin-top: 20px;">
+        <form id="upload" enctype="multipart/form-data" method="post" class="file">
+            <input class="upload-file" type="file" id="file" style="display: inline-block;">
+            <input class="btn btn-success" type="button" id="submit" value="上传">
+            <input class="btn btn-success" type="button" id="del" value="清除">
+        </form>
+
+    </div>
+    <div id="bar" style="width:800px; height:400px;margin: auto;margin-top: 30px"></div>
+    <div id="line" style="width:800px; height:400px;margin: auto;margin-top: 30px"></div>
+    <script>
+    var barchart = echarts.init(document.getElementById('bar'), 'white', {renderer: 'canvas'});
+    var linechart = echarts.init(document.getElementById('line'), 'white', {renderer: 'canvas'});
+
+    $(
+        function () {
+            fetchbarData(barchart);
+            fetchlineData(linechart);
+        }
+    );
+
+    function fetchbarData() {
+        $.ajax({
+            type: "GET",
+            url: "http://127.0.0.1:8000/show/bar",
+            dataType: 'json',
+            success: function (result) {
+                barchart.setOption(result.data);
+            }
+        });
+    }
+
+    function fetchlineData() {
+        $.ajax({
+            type: "GET",
+            url: "http://127.0.0.1:8000/show/line",
+            dataType: 'json',
+            success: function (result) {
+                linechart.setOption(result.data);
+            }
+        });
+    }
+</script>
+</body>
+</html>
